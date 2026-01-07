@@ -1,0 +1,367 @@
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+<script>
+    // ==========================================
+    // 1. CONFIGURATION
+    // ==========================================
+    
+    // PASTE YOUR FIREBASE CONFIG HERE
+    const firebaseConfig = {
+        apiKey: "AIzaSyAVzS57lXWel_bhfTRV_sCheS2gAECmyDM",
+        authDomain: "ai-report-comparison.firebaseapp.com",
+        projectId: "ai-report-comparison",
+        storageBucket: "ai-report-comparison.firebasestorage.app",
+        messagingSenderId: "345337447960",
+        appId: "1:345337447960:web:412b52e0cbda110ad1656d"
+        };
+
+    // YOUR DATA (Only needed once to seed the DB)
+    const initialFiles = [
+        {
+        "id": 46,
+        "text": "ID: 46\nYear: LS2\nAttainment: Proficient\nATL In: ME\nATL Out: ME\n\nBeatrice has enjoyed a very successful first term of T&P studies this year.  Whilst she is rather quiet in lessons, her written work has always been of an excellent standard.  Indeed, an outstanding 100% in the most recent end of unit assessment was testament to her splendid work ethic, high effort levels, diligent approach to wider reading, and natural critical-analysis skills.  She should be rightly proud of her achievements in this regard.\n\nThe target for her for the remainder of the year is to maintain these excellent high standards, and to participate in lessons more frequently.  The reason for this is that increased engagement in class discussions will have a positive impact on her written work and overall understanding, and I think we will see just how great she can be at the subject if she does rise to this challenge."
+        },
+        {
+        "id": 26,
+        "text": "ID: 26\nYear: LS1\nAttainment: Proficient\nATL In: EE\nATL Out: EE\n\nIona has demonstrated a nuanced understanding of William the Conqueror's consolidation of power, and has consistently produced excellent written work on this topic. She communicates information clearly in her own words, and her letter from William used precise historical terminology such as 'feigned retreat' and made links to prior knowledge, including Edward the Confessor's reign. In our summative 'How did William control England' task, Iona provided a clear judgement on why she felt violence was the most effective method employed. Her Motte and Bailey cake over half term was a fantastic example of her creativity - I was so pleased to see her taking up the opportunity to develop her knowledge outside of the classroom.\n\nTo further strengthen her written work, Iona should focus on developing her comparative reasoning by explaining why one factor was more important than others. She should feel confident in her abilities and, as a result, I would love to see her contribute voluntarily to class discussions more frequently next term. I would also encourage Iona to continue to take up extension opportunities and reading outside of the classroom. Books such as Daughters of Time by Mary Hoffman or Marc Morris's Castles might take her interest, but any reading, be it non fiction or historical fiction, would further strengthen her understanding and confidence. "
+        },
+        {
+        "id": 19,
+        "text": "ID: 19\nYear: LS1\nAttainment: Emergent\nATL In: ME\nATL Out: ME\n\nDylan has made a positive effort to involve himself verbally in lessons this term, and his Feudal System prep, which scored 8/10, showed a good understanding of a challenging topic. He is beginning to engage more confidently with historical reasoning, and it is encouraging to see him contributing to whole class discussions.\n\nTo continue improving, Dylan should ensure that all prep is completed on time and contact me if he needs support. His written work would benefit from greater specificity; for instance, when explaining William’s use of castles, he should focus on why he used them rather than describing what they were. Remaining focused throughout lessons will help him strengthen the quality and detail of his work.\n"
+        },
+        {
+        "id": 20,
+        "text": "ID: 20\nYear: Removes\nAttainment: Proficient\nATL In: EE\nATL Out: ME\n\nCharlotte participates well in group activities and discussions, consistently bringing a playful, creative, and joyful approach to drama. She has demonstrated very strong work this half term on physical theatre and visual storytelling, an area in which she has excelled. In the recent assessment focusing on Box House Theatre, Charlotte used movement and gesture very well to achieve effective visual storytelling.\n\nCharlotte's work is already solid, and she must continue to explore ensemble collaboration when using physical theatre and visual storytelling techniques. Her target is to work hard to use these collaborative choices to create symbolic meaning and effectively communicate a clear theme and atmosphere to the audience.\n"
+        },
+        {
+        "id": 1,
+        "text": "ID: 1\nYear: LS2\nAttainment: Proficient\nATL In: ME\nATL Out: EE\n\nSimran has worked excellently in maths lessons this term, getting on with tasks quietly and efficiently. Her prep work has been consistently strong, and she takes care to lay out her solutions clearly and neatly. This diligence was reflected in a really strong test result, and it was particularly pleasing to see her attempt the extension questions.\n\nGoing forward, Simran's main target is just to keep this up. The main area for development is her contributions to class discussions. Simran doe offer solutions and ask questions, but I'd like to see her push herself to ask the really challenging questions that will stretch both hers and others understanding. Overall, Simran has made a fantastic start to the year, and I look forward to seeing her continue to make such positive progress."
+        },
+        {
+        "id": 27,
+        "text": "ID: 27\nYear: LS1\nAttainment: Intermediate\nATL In: EE\nATL Out: EE\n\nRuby demonstrates good enthusiasm and creativity in lessons, producing thoughtful and imaginative work. Her 'letter from William the Conqueror' demonstrated excellent use of historical terminology, and in our summative task on William's methods of control, she clearly summarised the four methods and gave a well-reasoned judgement on why she felt violence was the most effective.\n\nRuby is encouraged to show more initiative and resilience when starting tasks and to attempt extension activities to challenge herself further. She should also develop her comparative reasoning skills by explaining why one method was more significant than others.\n"
+        },
+        {
+        "id": 42,
+        "text": "ID: 42\nYear: LS1\nAttainment: Proficient\nATL In: ME\nATL Out: ME\n\nDylan's attainment in his recent evaluation assessment was one of the highest in the class, so he clearly has capacity for the analytical side of drama. He used key terminology with maturity and specificity to write a considered reflection on his \"pantomime breakfast\" improvisation. He writes fluently and directly, which is a vital part of the drama curriculum, both about his own work and the work of others.\n\nIt is a shame, therefore, that when it comes to practical and performance tasks, Dylan still lacks the sustained attention for success in these areas. I would like him next term to come to class ready to work sensibly in a group scenario, taking on a leadership role where appropriate. He is clearly brimming with good ideas, and I would like to see more of these come to fruition next term."
+        },
+        {
+        "id": 48,
+        "text": "ID: 48\nYear: LS1\nAttainment: Proficient\nATL In: Ex\nATL Out: EE\n\nThis term in computer science, Yuki has engaged with the Howdou platform to build proficiency in school software, showing strengths in Google Docs and Google Drive. She also performed very well in the Bebras test, a computational thinking challenge. Following this, we moved on to discussing Artificial Intelligence (AI), covering computer vision, machine learning with training data, and the ethics of AI. Yuki produces great quality of work, shows great ability at the subject, and has a great attitude towards learning.\n\nYuki should explore more around the subject of computer science to strengthen her wider knowledge. She should also aim to complete the remaining badges in Google Sheets to master that core application."
+        },
+        {
+        "id": 43,
+        "text": "ID: 43\nYear: LS2\nAttainment: Proficient\nATL In: Ex\nATL Out: Ex\n\nLydia has done really well in history this term, and has demonstrated exceptional writing skills in achieving a superb 18/20 in the recent ‘Bloody Mary’ essay, where she used the PEEL structure to ensure her arguments were well supported. She is engaged in class, deeply empathetic with the history we are studying, and particularly excellent at creative tasks, such as the drama on Henry VIII’s wives. Lydia is inventive and diligent.\n\nLydia should consider that there are multiple perspectives in history and to try to understand the actions of the past not solely based on current values, but also from the worldview of the time. This was notably apparent in her initial condemnation of Mary in her essay planning. She must consistently look to take a more nuanced view of historical actors and events by evaluating their context thoroughly."
+        },
+        {
+        "id": 21,
+        "text": "ID: 21\nYear: Removes\nAttainment: Proficient\nATL In: EE\nATL Out: ME\n\nCharlie participates well in lessons and is developing his understanding of the skeletal, muscular and respiratory systems. He is starting to make links between these systems and how they work together during exercise, and contributes sensible ideas in discussions.\n\nTo build on this, Charlie should keep revisiting recent topics so that important details and definitions are not forgotten. Spending a little more time on independent review and checking his work for accuracy will help deepen his understanding and improve the quality of his assessments. Overall, a really impressive term, and I would like to see more of the same! "
+        },
+        {
+        "id": 47,
+        "text": "ID: 47\nYear: LS1\nAttainment: Intermediate\nATL In: ME\nATL Out: ME\n\nZach is a bright boy and, when on task, can create impactful characters instinctively. He responds well to teacher questioning and has made good headway with our current pantomime module, learning about stock characters and the other traits of this traditional art form. In a recent assessment, he wrote clearly about his own performance and this reflective skill will be useful as he progresses through the school.\n\nZach sometimes struggles with sustaining his attention for the duration of the lesson and will often ask for the time on multiple occasions. I hope that this will improve with a growing maturity, but given the playful nature of the tasks offered in drama it is a slight concern that he struggles to engage for the whole hour. I wonder if it is worth investigating some strategies to help him with resetting his focus. I believe Zach has more potential than he is accessing at present, and I hope to see this in the coming months after Christmas."
+        },
+        {
+        "id": 10,
+        "text": "ID: 10\nYear: LS2\nAttainment: Proficient\nATL In: EE\nATL Out: ME\n\nFred is an enthusiastic pupil who clearly enjoys maths. He has a natural aptitude for the subject and enjoys challenging himself. In lessons, he contributes positively and asks good questions. His independent work is of high quality; he clearly gives it time it deserves and it is generally well laid out. This all culminated in an excellent assessment score, where he agonisingly missed out on full marks by just one mark, hopefully next time!\n\nGoing forward, Fred needs to ensure he maintains this good layout consistently as he works through questions. Given his enthusiasm for tough questions, I was a little surprised he didn't attempt the extension section in the recent test. I would encourage him to do so in future to give himself a chance to really push himself. If he can do this, he will be in a strong position to maximise his undoubted potential in the subject."
+        },
+        {
+        "id": 40,
+        "text": "ID: 40\nYear: Removes\nAttainment: Intermediate\nATL In: EE\nATL Out: EE\n\nIsla's work ethic cannot be faulted, and she goes above and beyond to ensure that she stays on top of her assignments, completing each to the best of her ability. She has enjoyed studying a dramatic text, and I suspect would have hoped for more practical exploration of \"Macbeth\" in the classroom! She wrote a strong end of topic assessment on the presentation of Lady Macbeth, scoring 12/20: Isla did especially well to remember to cross-reference other scenes and make comparisons across the play.\n\nIsla has struggled with the idea of embedding quotations, which, if she address now, will really help her ahead of starting her GCSE course next year. There are worksheets I can offer her to help with this, but in general she needs to remember to build the quotation into a sentence, rather than using the words \"in the quotation\" or, worse, just writing the quotation as its own sentence. Further, and this is more advanced as a target, she should also try and plan her argument more tightly so that the essay written afterwards has a strong and cohesive through-line."
+        },
+        {
+        "id": 25,
+        "text": "ID: 25\nYear: LS1\nAttainment: Proficient\nATL In: Ex\nATL Out: EE\n\nThis term in computer science, Wilfred has focused on building digital literacy using Howdou modules, showing strengths in Google Drive and Google Classroom. He achieved one of the highest scores in the year group in the Bebras test, performing amazingly well. Following this, we discussed Artificial Intelligence (AI), covering computer vision, machine learning with training data, and the ethics of AI. Wilfred has made great progress this year, produces very high quality of work, and is really good in class discussions.\n\nWilfred should keep exploring around the subject to challenge himself further. He should also consider completing the remaining badges in Google Sheets to match his high ability.\n"
+        },
+        {
+        "id": 8,
+        "text": "ID: 8\nYear: Removes\nAttainment: Proficient\nATL In: EE\nATL Out: Ex\n\nFox demonstrates a very high ability in computer science and possesses an incredible knowledge around the subject. He contributes very well to class discussions, which reflects his deep understanding. The recent two-part assessment, which focused on core python programming concepts, was split between a theoretical test and a practical element that involved fully coding a text-based python game (both out of 20). Fox achieved a strong 16/20 on the theoretical test and an excellent 19/20 for the practical project. \n\nTo ensure he achieves his full potential, Fox needs to stay focused in class and remain consistently on task. This concentration is key for him to continue to develop his computer science ability and he should continue to explore the wider subject area outside of lessons."
+        },
+        {
+        "id": 36,
+        "text": "ID: 36\nYear: Removes\nAttainment: Proficient\nATL In: Ex\nATL Out: Ex\n\nOliver is an enthusiastic, intelligent and inquisitive pupil, always keen to provide his insight to his peers and the class as a whole. Working excellently in collaboration with his like-minded neighbour, he applies himself entirely to the content at hand, as well as seeking extension through questions and independent research, often found looking up adjacent content in the lesson while maintaining pace with the class. In his recent egg project work, he exhibited a thorough understanding of the scientific method, as well as communicating his intentions clearly to those with whom he was working. He scored 87% in the recent assessment completed by his whole year group, well above the year’s average score, and only dropping a few marks on the more difficult areas of the specification, and this should give him confidence for content in the future."
+        },
+        {
+        "id": 22,
+        "text": "ID: 22\nYear: LS2\nAttainment: Proficient\nATL In: Ex\nATL Out: Ex\n\nToby has enjoyed an excellent term in the geography classroom as we investigate global climate, how it has changed its impacts and potential solutions. He takes what we discuss in his stride and is always able to offer ideas in class discussion that are well thought through and advanced. His score of 23/25 in the recent end of topic test was exceptional and amongst the highest in the class. His answers were detailed and accurate throughout. \n\nI encourage Toby to push himself outside of the classroom and to throw himself into one of the topics we are studying. He might want to pick an issue to explore as part of his work with the Academic Enrichment group? He should spend time reading the news, keeping up to date with global issues and ensuring he is as well informed as possible. "
+        },
+        {
+        "id": 45,
+        "text": "ID: 45\nYear: LS1\nAttainment: Emergent\nATL In: NI\nATL Out: ME\n\nJulia has had a disappointing start to the year in computer science. While she has worked competently at times, she struggles with distractions and frequently uses her iPad at inappropriate times. She has achieved 12 digital badges, identifying a need to catch up on key skills such as formatting data and presentation features. I am hopeful that she will approach lessons next term with improved focus and a better attitude to learning.\n\nJulia needs to improve her sustained attention, settle to tasks quicker, and listen to instructions. She must deliver more in the subject to reach her potential."
+        },
+        {
+        "id": 34,
+        "text": "ID: 34\nYear: Middles\nAttainment: 8\nATL In: EE\nATL Out: Ex\n\nJeremy continues to work exceptionally hard in German. He has still kept up his record of 100% on all vocabulary tests since September (including two this half term) and produces excellent, developed written responses, showing full understanding of the past and future tenses. I was delighted with the energy he put into his speaking prep, which was great practice for him. \n\nJeremy knows that pronunciation is an area of focus for him and he has detailed notes on this from me on our GC on how to improve. Optional Language Gym practice over the holidays will help with his listening and in turn his speaking skills. Jeremy would also benefit from extra reading outside of class, which he could find on our German bookshelf outside of the classroom. Finally, I would like to hear even more from him in class, so as to boost his confidence in conversation.\n\n"
+        },
+        {
+        "id": 15,
+        "text": "ID: 15\nYear: Middles\nAttainment: 6\nATL In: EE\nATL Out: NI\n\nSerafina takes a very mature attitude to her classwork in German. She is quick to get started on tasks, works without distraction and produces extended written work of a high standard. Serafina is a little more uncertain when it comes to following class instructions in German, but her listening skills will develop over time, with continued concentration.\n\nSerafina has missed a few lessons this half term, and hasn’t performed as well as she could have in her vocabulary tests. Secure knowledge of these words would help her feel more confident when we have class discussions in German. Serafina shows real promise in her written work and grammatical understanding; she knows how to produce correct past and future tenses, she now needs to channel this into her spoken skills. I would like to see her offer up more answers in class of her own accord, to boost her confidence. Learning her vocabulary well for prep is key.\n"
+        },
+        {
+        "id": 23,
+        "text": "ID: 23\nYear: Middles\nAttainment: 7\nATL In: EE\nATL Out: EE\n\nDorothy continues to work very well in German. She is focused in class and produces good written work; she has a promising grasp of the past tense and future tense and she produces mostly reliable test scores, keep up the good work, Dororthy!\n\nIn a recent speaking prep, Dorothy was given the feedback to vary her intonation to make her spoken German more comprehensible. I would really urge her to offer up more of her own ideas and sentences in class, which, in turn, would allow her to put her sound, theoretical, grammar knowledge into spoken practice. Dorothy can sometimes find it difficult to follow German class instructions and the more that she makes a conscious effort to say extended sentences in class, the more feedback she will be able to get from me. I would really like to see Dorothy make a real effort here. She is one of the strongest grammatically in the class, so I know that she would have a lot to offer to class discussions.\n"
+        },
+        {
+        "id": 11,
+        "text": "ID: 11\nYear: Middles\nAttainment: 5\nATL In: ME\nATL Out: ME\n\nJuliette demonstrates a good general understanding of the Civil Rights movements studied for history this term. She has an efficient approach, settling down to tasks quickly and producing a solid set of notes for the topics covered, which shows her commitment to working hard. She also appears reasonably enthused by the subject matter in class, which is a good foundation for success in history. \n\nJuliette’s next focus is to read all source material and questions carefully to ensure she understands the full meaning, as there is sometimes a lack of attention to detail in her responses. Furthermore, her knowledge recall is not as strong as it could be; she should be aiming to learn precise details in her own time using active revision techniques, such as flashcards, as a large amount of detailed content is essential for the history syllabus."
+        },
+        {
+        "id": 13,
+        "text": "ID: 13\nYear: Middles\nAttainment: 5\nATL In: ME\nATL Out: ME\n\nLucille has a good general grasp of the content covered so far this term in history. She is visibly becoming more comfortable to answer recall questions in class, suggesting a growing confidence. She has also produced a good set of notes for the Civil Rights Movement, demonstrating her commitment to working hard in the subject. \n\nLucille’s should push her written answers a little further to demonstrate more detailed understanding. She must aim for more sophistication and nuance in her exam-style work, moving beyond simple description to clear, analytical argument that incorporates precise evidence and rigorous explanation."
+        },
+        {
+        "id": 14,
+        "text": "ID: 14\nYear: Removes\nAttainment: Emergent\nATL In: EE\nATL Out: ME\n\nCharlotte arrived in my set after half term and has impressed me with her attitude towards the subject. In lessons she is the definition of earnest, totally focussed on the task in hand and happy to ask questions to help her understand the topic of the day. In fact today Charlotte was the first pupil to solve a complex perimeter question, earning a yellow ticket ahead of her classmates! I have also been happy with her preps, her work has been submitted on time and completed to the best of her ability.\n\nSadly Charlotte has struggled to produce her best in test situations. Both of her assessments were a struggle, with November in particular proving difficult for her. The good news is that her algebra, which is the language of maths, is her strong point. Her geometry will need some attention over the break, as circles and angles had Charlotte in a bit of a muddle. Great work Charlotte, keep doing your best and the results will improve.\n"
+        },
+        {
+        "id": 17,
+        "text": "ID: 17\nYear: Removes\nAttainment: Intermediate\nATL In: EE\nATL Out: EE\n\nI have enjoyed teaching Mabel this term, she has developed as a mathematician and begun to show some real self belief. In lessons she is probably the top participant, both in terms of offering answers and crucially also asking for help when she is stuck. Mabel is keen to learn and understand and this has driven her improved attainment. Her homework has been on time and of a very high standard too. She completed more of the revision sheet than anyone else, most impressive.\n\nHard work usually leads to success and Mabel has now scored very well in both of our assessments, particularly in the November paper. She did drop marks in the ratio question and also the fraction of a circle question, so please check these out and move on with confidence, Mabel. All in all a wonderful term’s work, well done Mabel.\n"
+        },
+        {
+        "id": 24,
+        "text": "ID: 24\nYear: Removes\nAttainment: Intermediate\nATL In: ME\nATL Out: EE\n\nIt has been a pleasure to teach Sam this term, he has been an attentive and hardworking pupil in my maths class. In class Sam is always on task and settled on the job in hand. He sits at the front and I have been happy with his progress. Sam’s preps have been of the highest order throughout the term. He is clearly motivated and organised and I have been delighted to see this.\n\nSadly Sam missed the recent assessment through illness, so exact progress is slightly unknown. However he did well in October and has been active and positive since, so I am confident that he is on track. Well done Sam, enjoy the break and return fresh for more work and play in January.\n"
+        },
+        {
+        "id": 18,
+        "text": "ID: 18\nYear: LS1\nAttainment: Intermediate\nATL In: ME\nATL Out: ME\n\nSelena is able to recall lots of the names of the pieces of scientific apparatus, and she is steadily improving her ability to draw scientific diagrams. She has developed her practical skills this term by working with her partner to follow a range of methods and work safely in the science classroom. Most recently, she has developed her ability to record data accurately in tables, allowing her to identify anomalies and calculate averages with increasing confidence.\n\nIn lessons, she is mostly focused, though she can sometimes be slow to begin practical tasks. She should make sure she asks for help whenever she needs it. Selina should also review scientific vocabulary regularly to strengthen recall and ensure she uses correct terminology in her work. She can also improve by continuity practising drawing scientific diagrams, focusing on neatness, accuracy, and including all required labels. Overall, she has impressed me with her enthusiasm this term."
+        },
+        {
+        "id": 5,
+        "text": "ID: 5\nYear: Removes\nAttainment: Intermediate\nATL In: ME\nATL Out: ME\n\nSavannah has demonstrated a very positive attitude towards her learning this term. She receives and applies feedback well, always taking on board advice to improve the quality of her work. Her effort was rewarded in the recent year group assessment, where she scored well, particularly regarding states of matter, clearly having a solid grasp of how particles behave in different physical conditions.\n\nSavannah did make a few mistakes in the recent atomic structure assessment. It is important that she reviews this topic, focusing on the arrangement of protons, neutrons, and electrons, to ensure these misconceptions do not persist into the Middles year. To aid her progress, Savannah should look to volunteer her answers more often. Moving out of her comfort zone to speak up in class will help her build confidence and allow for immediate feedback on her understanding of new concepts."
+        },
+        {
+        "id": 2,
+        "text": "ID: 2\nYear: LS2\nAttainment: Proficient\nATL In: EE\nATL Out: EE\n\nFlorence has been a diligent and focused student in geography this term. We began by studying climate change, and she demonstrated a strong understanding of this topic, achieving an impressive 21/23 on the assessment. She showed excellent interpretation skills when working with figures and was able to accurately describe trends. Although she briefly mixed up adaptation and mitigation, her answer was still creditworthy and showed clear thinking. More recently, in our population topic, her work has continued to be very neat, well-organised, and carefully completed, with consistently strong prep and classwork.\n\nTo keep improving, Florence would benefit from revisiting some of the key terminology, especially where the differences are quite small, such as between adaptation and mitigation. This will help her feel more confident and keep her written answers clear and precise. "
+        },
+        {
+        "id": 4,
+        "text": "ID: 4\nYear: LS2\nAttainment: Emergent\nATL In: ME\nATL Out: ME\n\nKazer has shown a genuine interest in our project work this term which has been the driver for him making good progress in the two areas we have focused on. I would like him to be more resilient when he encounters the difficulties that always present themselves during practical sessions but this has not stopped him making good use of our CAD drawing software and using a range of traditional hand tools with increasing confidence.\n\nNext term, Kazer will be working with metal for the first time. He will be undertaking a number of skills based tasks to gain a better understanding of how to use traditional hand tools effectively. The focus for this should be on the preparation of raw material, shaping and finishing simple components accurately, paying particular attention to secure material set up and safety.\n"
+        },
+        {
+        "id": 3,
+        "text": "ID: 3\nYear: Removes\nAttainment: Emergent\nATL In: ME\nATL Out: ME\n\nLouis struggled with focus and engagement at the start of the year but has since made creditworthy improvements. He is now contributing to lessons, largely staying more focused, and he needs to maintain this momentum. I’m pleased that Louis enjoyed studying Rousseau, as he felt a personal connection to the ideas. He has acknowledged that the beginning of the year was difficult due to the terminology and keeping up with the pace, and I hope that he will continue to target improvement in these areas.\n\nLouis needs to improve his sustained attention, avoid digital distractions, and be quicker to settle into tasks. His self-given targets of better listening and giving more effort are crucial; by adhering to these, he will ensure he fully understands the topics and continues his recent progress."
+        },
+        {
+        "id": 35,
+        "text": "ID: 35\nYear: LS2\nAttainment: Emergent\nATL In: ME\nATL Out: ME\n\nIt has been lovely to teach Kazer geography again this year. He engaged well throughout our climate change topic and contributed thoughtfully to class discussions. His confidence has continued to grow, and he is now keeping pace with class tasks much more comfortably. Kazer scored 14/25 on the climate change assessment showing evident revision but small errors in reading the question and interpreting graphs and figures to access the most amount of marks available. \n\nFor improvement, Kazer should work on developing his cognitive flexibility; thinking more broadly about a topic rather than focusing too narrowly on a single example. Looking at issues from different angles will help him become a more confident geographer, especially when tackling longer, more extended questions."
+        },
+        {
+        "id": 44,
+        "text": "ID: 44\nYear: Middles\nAttainment: 5\nATL In: ME\nATL Out: ME\n\nCarter contributed well to the recent devised assessment using the techniques of Bertolt Brecht. He has a reasonable grasp of Brecht's socio-political agenda and how these techniques can be used to create drama and communicate meaning. Carter has written essays which show signs of improvement and progress in terms of analysing and evaluating live theatre.\n\nCarter's primary focus must be to consider how a range of relevant techniques from different theatre practitioners can be used to create and communicate meaning when devising drama in response to a stimulus. This will be vital for success in next year's Component 1 devised assessment. Carter should also continue to develop his essay writing style by familiarising himself with their structure and formula and revising the subject-specific vocabulary lists.\n"
+        },
+        {
+        "id": 28,
+        "text": "ID: 28\nYear: LS2\nAttainment: Intermediate\nATL In: ME\nATL Out: ME\n\nKazer is a capable mathematician who has shown real enthusiasm for maths this term. He engages well in class discussions, regularly asking good questions that help clarify his understanding. It was particularly pleasing to see him attempt the extension material in the recent assessment, demonstrating a willingness to challenge himself. His test performance was good overall, though it suggested there are still some gaps to address to fully secure the core material.\n\nGoing forward, Kazer needs to focus on improving the precision of his written work, as his layout can lack structure at times. In particular, he found inequalities challenging and should prioritise this topic in his revision. Ensuring he has secured the basics before moving on to extension tasks will be key to his continued progress and will allow him to make the most of his undoubted potential in the subject."
+        },
+        {
+        "id": 6,
+        "text": "ID: 6\nYear: Middles\nAttainment: 6\nATL In: EE\nATL Out: ME\n\nEliza has made a positive start to GCSE geography this term and is a bright and capable student. She has produced some well-detailed 6- and 9-mark answers on both the Living World and Resource Management topics, demonstrating a strong understanding of the content. Her classwork is neat and well organised, reflecting the effort she puts into lessons.\n\nTo continue improving, Eliza should focus on catching up with any missed content over the last few weeks using both the Google Classroom, her textbook and the specification for guidance. Equally, I would like her to take greater responsibility for the work she completes outside of lesson time, particularly during long tutorials. All of which will help consolidate her learning and ensure she is fully prepared for future assessments."
+        },
+        {
+        "id": 9,
+        "text": "ID: 9\nYear: Removes\nAttainment: Intermediate\nATL In: ME\nATL Out: ME\n\nMax has been a steady and composed presence in the classroom throughout the Winter Term. He completes independent work calmly, displaying a level of focus that enables him to tackle tasks with efficiency and accuracy. This consistent effort is reflected in his academic performance, notably achieving 74% in the recent year group assessment. This score is a clear indicator that he has grasped the core concepts well and has established a strong platform for future success.\n\nMoving forward, Max needs to put his hand up more often during lessons to offer his thoughts and answers. Increasing his verbal contribution will help him check his understanding in real-time and engage more deeply with the material. Consequently, the primary target is to develop his confidence. He evidently possesses the knowledge required to succeed, but trusting in his ability to articulate scientific ideas verbally will be key to unlocking his full potential and tackling more challenging material with authority."
+        },
+        {
+        "id": 37,
+        "text": "ID: 37\nYear: LS1\nAttainment: Intermediate\nATL In: EE\nATL Out: ME\n\nZiva is an excellent pupil who works hard and is keen to contribute to lessons. She has achieved 23 digital badges, showing solid progress in her digital literacy, particularly in getting to know Google Classroom and customising her work environment. I am pleased she enjoyed the topic of AI, specifically distinguishing between human and artificial intelligence. However, she found the digital passports challenging, which is reflected in some of the more advanced formatting tasks she has yet to complete.\n\nZiva has set a target to put more detail into her answers to ensure she is fully explaining her understanding. I encourage her to persevere with the remaining badge tasks to ensure she has a complete skill set before we move on to Scratch coding."
+        },
+        {
+        "id": 38,
+        "text": "ID: 38\nYear: LS2\nAttainment: Intermediate\nATL In: EE\nATL Out: ME\n\nRoseanna's ever-increasing confidence in drama is excellent to see, supported by her focused, hardworking, thoughtful, and committed approach. In our recent scene study, she demonstrated an excellent thought process for her character, using a bright tone and good energy in her voice and vocal delivery. She showed a strong stage presence and effective gestures, and her group achieved a fluent scene change.\n\nTo sustain her characterisation, Roseanna must work hard to keep her character alive between lines of dialogue by actively listening and reacting to the actions of her peers. She is encouraged to continue the effective use of gestures and vocal emphasis on keywords to communicate meaning and depth to the audience.\n"
+        },
+        {
+        "id": 41,
+        "text": "ID: 41\nYear: Middles\nAttainment: 8\nATL In: ME\nATL Out: ME\n\nJoining our class more recently, Amanda was initially nervous to find herself in a louder, more active setting, in which questions are frequently verbally posed to her without warning. However she has recently begun to embrace the competitive nature of the classroom, working well with her neighbour to check her work and understanding at a number of points through the lesson, and is developing both her knowledge and self-confidence well, scoring an impressive 80% in the recent assessment.\n\nAmanda simply needs to maintain this current trajectory in order to improve her attainment grade up to the highest possible. She in clearly intelligent and driven by success, and so I would recommend she seeks to answer exam-style questions as part of her revision routine, especially given how central the structure and bonding topic is to the rest of the course."
+        },
+        {
+        "id": 7,
+        "text": "ID: 7\nYear: LS1\nAttainment: Intermediate\nATL In: EE\nATL Out: EE\n\nThis term in computer science, Selena has been developing her digital literacy skills through Howdou practical tasks, showing foundational competence in Google Meet and Google Classroom. She also completed the Bebras test, a computational thinking challenge, showing good understanding. Following this, we moved on to discussing Artificial Intelligence (AI), covering computer vision, machine learning with training data, and the ethics of AI. Selena consistently produces great quality of work and is really good in class discussions.\n\nSelena should explore more around the subject of computer science to build her confidence. She should also aim to complete the outstanding badges in Google Sheets.\n"
+        },
+        {
+        "id": 12,
+        "text": "ID: 12\nYear: LS2\nAttainment: Intermediate\nATL In: EE\nATL Out: ME\n\nI have been thoroughly impressed with George’s approach to Latin throughout this term. Rarely does one have the pleasure of teaching such an enthusiastic and engaged pupil, and this fantastic attitude has helped George to make excellent progress in spite of his lack of confidence in Latin, evidenced by his mark of 68% in our recent end of topic assessment. Even when he is clearly unsure as to what something means, George never allows doubt to prevent him from contributing proactively in class, for which he must be commended. Such fearlessness in making mistakes is a quality in language learning the importance of which it is hard to overstate, and will stand George in good stead for the future.\n\nGoing forward, George should endeavour to set aside some time each week to undertake consolidatory work on new material and vocabulary that we have covered in class that week. This will help him to continue to develop his confidence in reading and translating Latin."
+        },
+        {
+        "id": 31,
+        "text": "ID: 31\nYear: Middles\nAttainment: 5\nATL In: EE\nATL Out: ME\n\nKelson has had a very positive half term in biology and has shown himself to be reliable, focused, and hardworking. His prep is completed on time, and he approaches practical tasks in a systematic and sensible way, demonstrating a good natural understanding of how to work safely and effectively. His end-of-topic test on digestion and enzymes was decent and reflected the preparation he had put in. He has also earned yellow tickets for maintaining good focus in lessons and consistently making positive contributions.\n\nKelson’s main challenges lie in consolidating some of the core theory and using the correct vocabulary, particularly enzyme theory, absorption in the small intestine and percentage-change calculations. To continue improving, he should revisit these concepts and ensure he is confident with the basics of experimental design, especially the ideas of validity and reliability. With steady attention to these areas, he will continue building on what has been a successful and productive term."
+        },
+        {
+        "id": 33,
+        "text": "ID: 33\nYear: Middles\nAttainment: 6\nATL In: EE\nATL Out: EE\n\nVerity is a lovely presence in class. She is calm, attentive, and always seeks to clarify her understanding to ensure she fully grasps the work being covered. She is trustworthy in the lab, consistently working safely, calmly, and with care. Her prep work is always completed to a good standard, and she is showing good progress in her mini-tests (yellow ticket) and end-of-topic assessments. This half term, Verity coped well with catching up on a week’s worth of lessons, working hard and effectively to unpick written tasks and apply her understanding to exam-style questions.\n\nAn area for Verity to focus on is continuing to take care with her written work. She should pay close attention not only to the details of enzyme theory but also to experimental design, ensuring she is comfortable with the key concepts of reliability, validity, and accuracy. Developing these skills will help her consolidate her understanding and perform confidently in future assessments."
+        },
+        {
+        "id": 29,
+        "text": "ID: 29\nYear: LS2\nAttainment: Intermediate\nATL In: ME\nATL Out: EE\n\nJack has engaged positively in maths lessons throughout this term. His prep has been particularly strong; he consistently takes good time over it and produces clear, well-written solutions. This diligent approach was reflected in a good test result, which showed a good overall understanding of the topics we've covered.\n\nThere was still some room for improvement and going forward, Jack should review how to use a decimal multiplier for percentages and percentage change. This process of reviewing and reflecting on areas as they come up will be important for his continued progress. Overall, Jack is doing very well and the main aim is just to keep it up."
+        },
+        {
+        "id": 39,
+        "text": "ID: 39\nYear: Removes\nAttainment: Proficient\nATL In: ME\nATL Out: ME\n\nBen has made steady, positive progress this term and is regularly engaged in lessons. He approaches the course with maturity and works well during class activities. He is a lovely pupil to have in class, and when asked, he contributes thoughtfully to discussions. In his prep work and mid-topic mini-tests, he usually achieves solid marks, demonstrating that he is keeping on top of the course material. Earlier in the term, he performed well in the end-of-topic test on States of Matter and it is good to see him building on this solid foundation.\n\nAn area for Ben to focus on is ensuring he fully understands how to use the periodic table to determine the numbers of neutrons, protons, and electrons in atoms, as well as the charges on ions. He should also continue to develop his understanding of isotopes and practise calculating relative atomic mass. Continuing to practise these areas while maintaining his good work ethic in lessons and prep will help him consolidate his knowledge and perform confidently in future assessments."
+        },
+        {
+        "id": 32,
+        "text": "ID: 32\nYear: Middles\nAttainment: 7\nATL In: EE\nATL Out: ME\n\nFedor clearly enjoys grappling with issues in the past and bringing his own unique perspective to studying them. He is a thoughtful pupil who really thinks about the topics being studied, probing for deeper understanding rather than simply accepting information. His written work is generally completed to a good standard, reflecting his diligent approach to the subject. \n\nFedor’s should not assume that the reader will automatically interpret and understand historical issues in the same way as he does; he must explicitly explain the significance of his evidence and his reasoning. He also needs to ensure the proper application of exam technique to his knowledge in all assessments to maximise his marks and secure the grades his hard work deserves."
+        },
+        {
+        "id": 16,
+        "text": "ID: 16\nYear: Middles\nAttainment: 7\nATL In: ME\nATL Out: EE\n\nJack is a committed, hardworking, enthusiastic, and courteous member of the drama class, showing a real love of the subject. He recently created a strong piece incorporating the techniques of Bertolt Brecht to a confident standard. Jack has a good sense of Brecht's socio-political agenda and how this informs his Epic theatre, applying techniques with reasonable strength to create devised work. He wrote a reasonably strong live theatre review, showing good understanding of design aspects of performance.\n\nTo expand his creative repertoire, Jack must work hard to consider how symbolism is created and used to communicate complex meaning to an audience. As we move on to new practitioners, he must be brave and take risks, fully engaging with physical movement skills to explore the demanding physical theatre styles of Frantic Assembly and Artaud.\n"
+        },
+        {
+        "id": 30,
+        "text": "ID: 30\nYear: LS1\nAttainment: Intermediate\nATL In: Ex\nATL Out: ME\n\nMickey is a super enthusiastic pupil who is a delight to teach. He is very keen to get involved and has achieved an impressive 26 digital badges. He has demonstrated strong competency in using Google Calendar to manage his time and has shown he can effectively structure and collaborate on files within Google Drive. I am pleased that Mickey enjoyed learning about the evolution of AI technology, finding the rapid pace of change fascinating.\n\nHowever, Mickey has found the specific task of creating algorithms for AI concepts challenging and requires more clarity on the building process. Mickey needs to develop his core skills by exploring coding and machine learning further. He has set a target to better understand the process of building an AI, which will be our focus next term. "
+        }
+    ]
+
+    // Set this to TRUE, run the page once, then set to FALSE.
+    const SEED_DATABASE = true; 
+
+    // Elo Config
+    const K_FACTOR = 32;
+
+    // ==========================================
+    // 2. APP LOGIC
+    // ==========================================
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let allItems = [];
+    let currentLeft = null;
+    let currentRight = null;
+    let voteCount = 0;
+
+    async function init() {
+        document.getElementById('text-left').innerText = "Loading data from cloud...";
+        
+        // One-time seeding script
+        if (SEED_DATABASE) {
+            console.log("Seeding database...");
+            const batch = db.batch();
+            initialFiles.forEach(item => {
+                const ref = db.collection('files').doc(item.id);
+                batch.set(ref, { 
+                    text: item.text, 
+                    rating: 1000, 
+                    wins: 0, 
+                    losses: 0 
+                });
+            });
+            await batch.commit();
+            alert("Database seeded! Set SEED_DATABASE to false now.");
+            return;
+        }
+
+        // Fetch data from Firestore
+        const snapshot = await db.collection('files').get();
+        allItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        if(allItems.length === 0) {
+            alert("Database is empty. Please set SEED_DATABASE = true and refresh.");
+        } else {
+            updateStatsUI();
+            nextPair();
+        }
+    }
+
+    function nextPair() {
+        if (allItems.length < 2) return;
+
+        // Pick two random items
+        const idx1 = Math.floor(Math.random() * allItems.length);
+        let idx2 = Math.floor(Math.random() * allItems.length);
+        while (idx1 === idx2) idx2 = Math.floor(Math.random() * allItems.length);
+
+        currentLeft = allItems[idx1];
+        currentRight = allItems[idx2];
+
+        document.getElementById('text-left').innerText = currentLeft.text;
+        document.getElementById('text-right').innerText = currentRight.text;
+    }
+
+    function getExpectedScore(ratingA, ratingB) {
+        return 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400));
+    }
+
+    async function vote(winnerSide) {
+        // Optimistic UI update (makes it feel instant)
+        nextPair();
+        voteCount++;
+        document.getElementById('vote-count').innerText = voteCount;
+
+        const winner = winnerSide === 'left' ? currentLeft : currentRight;
+        const loser = winnerSide === 'left' ? currentRight : currentLeft;
+
+        // TRANSACTION: Ensures we don't overwrite someone else's vote
+        // This reads the LATEST rating from the server before saving
+        const winnerRef = db.collection('files').doc(winner.id);
+        const loserRef = db.collection('files').doc(loser.id);
+
+        try {
+            await db.runTransaction(async (transaction) => {
+                const wDoc = await transaction.get(winnerRef);
+                const lDoc = await transaction.get(loserRef);
+
+                if (!wDoc.exists || !lDoc.exists) throw "Document does not exist!";
+
+                const wRating = wDoc.data().rating;
+                const lRating = lDoc.data().rating;
+
+                const expectedWinner = getExpectedScore(wRating, lRating);
+                const expectedLoser = getExpectedScore(lRating, wRating);
+
+                const newWinnerRating = wRating + K_FACTOR * (1 - expectedWinner);
+                const newLoserRating = lRating + K_FACTOR * (0 - expectedLoser);
+
+                transaction.update(winnerRef, { 
+                    rating: newWinnerRating,
+                    wins: wDoc.data().wins + 1 
+                });
+                transaction.update(loserRef, { 
+                    rating: newLoserRating,
+                    losses: lDoc.data().losses + 1
+                });
+            });
+            
+            // Background update of local array so next random pick has fresh data
+            // (Optional: we can just fetch lazily)
+            const wIndex = allItems.findIndex(i => i.id === winner.id);
+            const lIndex = allItems.findIndex(i => i.id === loser.id);
+            // We won't update local ratings perfectly to avoid complexity, 
+            // but the DB is accurate.
+            
+        } catch (e) {
+            console.error("Transaction failed: ", e);
+        }
+    }
+
+    // CSV Export - Now fetches fresh data from server
+    async function exportCSV() {
+        document.querySelector('button[onclick="exportCSV()"]').innerText = "Generating...";
+        
+        const snapshot = await db.collection('files').get();
+        const freshData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        const sorted = freshData.sort((a, b) => b.rating - a.rating);
+
+        let csvContent = "data:text/csv;charset=utf-8,File ID,Elo Rating,Wins,Losses\n";
+        sorted.forEach(row => {
+            csvContent += `${row.id},${row.rating.toFixed(2)},${row.wins},${row.losses}\n`;
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "shared_ranking_results.csv");
+        document.body.appendChild(link);
+        link.click();
+        
+        document.querySelector('button[onclick="exportCSV()"]').innerText = "Download Results";
+    }
+    
+    function updateStatsUI() {
+       // Optional: Could show total comparisons globally if you tracked a global counter in DB
+    }
+
+    init();
+</script>

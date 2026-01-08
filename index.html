@@ -431,6 +431,7 @@
     async function vote(winnerSide) {
         // Optimistic UI update (makes it feel instant)
         nextPair();
+        //updateStatsUI();
         voteCount++;
         document.getElementById('vote-count').innerText = voteCount;
 
@@ -474,7 +475,11 @@
             const lIndex = allItems.findIndex(i => i.id === loser.id);
             // We won't update local ratings perfectly to avoid complexity, 
             // but the DB is accurate.
-            
+
+            // Fetch data from Firestore
+            const snapshot = await db.collection('files').get();
+            allItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            updateStatsUI();
         } catch (e) {
             console.error("Transaction failed: ", e);
         }
@@ -505,7 +510,10 @@
     }
     
     function updateStatsUI() {
-       // Optional: Could show total comparisons globally if you tracked a global counter in DB
+        // Optional: Could show total comparisons globally if you tracked a global counter in DB
+        voteCount = 0
+        allItems.forEach(row => {voteCount += row.wins});
+        document.getElementById('vote-count').innerText = voteCount;
     }
 
     init();
